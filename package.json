@@ -1,0 +1,17 @@
+{
+  "name": "boncho-yakje-trainer",
+  "version": "1.0.0",
+  "description": "본초 감별 시험 대비 사진 암기 웹앱",
+  "private": false,
+  "scripts": {
+    "preview": "python3 -m http.server 8765",
+    "deploy:vercel": "vercel --prod"
+  },
+  "keywords": [
+    "boncho",
+    "herb",
+    "study",
+    "flashcard"
+  ],
+  "license": "UNLICENSED"
+}

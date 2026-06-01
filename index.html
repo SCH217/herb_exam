@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="본초 감별 시험 대비 사진 암기 웹앱">
+    <meta name="theme-color" content="#0b0b0c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="본초감별">
+    <meta property="og:title" content="본초 감별">
+    <meta property="og:description" content="사진을 보고 약재명을 외우는 본초 감별 시험 대비 웹앱">
+    <meta property="og:type" content="website">
+    <title>본초 감별</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>본초 감별</h1>
+          <p id="saveStatus">자동 저장됨</p>
+        </div>
+        <div class="header-actions">
+          <button class="icon-button" id="exportBtn" type="button" title="데이터 저장">저장</button>
+          <button class="icon-button" id="importBtn" type="button" title="데이터 불러오기">불러오기</button>
+          <button class="icon-button" id="resetBtn" type="button" title="초기화">초기화</button>
+          <input class="hidden" id="importFile" type="file" accept="application/json,.json">
+        </div>
+      </header>
+
+      <nav class="mode-tabs" aria-label="학습 모드">
+        <button class="mode-tab active" type="button" data-mode="flash">플래시카드</button>
+        <button class="mode-tab" type="button" data-mode="exam">시험모드</button>
+        <button class="mode-tab" type="button" data-mode="deck">약재장</button>
+      </nav>
+
+      <section class="summary-grid" aria-label="학습 현황">
+        <div class="summary-item">
+          <span>본 약재</span>
+          <strong id="seenCount">0</strong>
+        </div>
+        <div class="summary-item">
+          <span>안 본 약재</span>
+          <strong id="unseenCount">126</strong>
+        </div>
+        <div class="summary-item">
+          <span>암기완료</span>
+          <strong id="knownCount">0</strong>
+        </div>
+        <div class="summary-item">
+          <span>암기미완료</span>
+          <strong id="unknownCount">0</strong>
+        </div>
+      </section>
+
+      <main>
+        <section class="mode-panel active" id="flashPanel">
+          <div class="card-meta">
+            <span id="flashCounter">1 / 126</span>
+            <span id="flashGroup">전체</span>
+          </div>
+
+          <article class="study-card">
+            <div class="image-frame">
+              <img id="flashImage" alt="">
+            </div>
+            <button class="answer-card" id="answerCard" type="button">
+              <span id="answerText">탭하여 정답 보기</span>
+              <small id="answerSubtext"></small>
+            </button>
+          </article>
+
+          <div class="action-grid">
+            <button class="secondary-button" id="prevFlashBtn" type="button">← 이전</button>
+            <button class="danger-button" id="unknownFlashBtn" type="button">미완료</button>
+            <button class="success-button" id="knownFlashBtn" type="button">완료</button>
+            <button class="secondary-button" id="nextFlashBtn" type="button">다음 →</button>
+          </div>
+        </section>
+
+        <section class="mode-panel" id="examPanel">
+          <section class="exam-stats" aria-label="시험 현황">
+            <div>
+              <span>시험 세트</span>
+              <strong id="examSetCount">0</strong>
+            </div>
+            <div>
+              <span>60초 이내</span>
+              <strong id="examOnTimeCount">0</strong>
+            </div>
+            <div>
+              <span>평균 시간</span>
+              <strong id="examAverageTime">0초</strong>
+            </div>
+            <div>
+              <span>반복 약재</span>
+              <strong id="examRepeatCount">0</strong>
+            </div>
+          </section>
+
+          <div class="exam-toolbar">
+            <div>
+              <h2>4장 시험</h2>
+              <p id="examMessage">시작을 누르면 4개 약재가 나옵니다.</p>
+            </div>
+            <div class="timer-block">
+              <div class="timer-bar"><span id="timerFill"></span></div>
+              <strong id="timerText">60</strong>
+            </div>
+          </div>
+
+          <div class="exam-buttons">
+            <button class="primary-button" id="startExamBtn" type="button">시작</button>
+            <button class="secondary-button" id="revealExamBtn" type="button">정답보기</button>
+          </div>
+
+          <div class="exam-grid" id="examGrid"></div>
+        </section>
+
+        <section class="mode-panel" id="deckPanel">
+          <div class="deck-toolbar">
+            <input id="deckSearch" type="search" placeholder="약재명 검색">
+          </div>
+          <div class="deck-list" id="deckList"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
