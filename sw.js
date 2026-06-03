@@ -1,4 +1,4 @@
-const CACHE_NAME = "boncho-yakje-v3";
+const CACHE_NAME = "boncho-yakje-v4";
 const APP_SHELL = [
   "./",
   "./index.html",

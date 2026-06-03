@@ -418,15 +418,20 @@
 
     runtime.examItems.forEach((item) => {
       markSeen(item);
+      const s = itemState(item.id);
+      s.seen = true;
+      s.status = "known";
+      s.lastSeen = Date.now();
+      delete state.exam.repeatItems[item.id];
     });
 
-    saveState("저장됨");
+    saveState("기본 완료 저장");
     renderExamGrid(true);
     renderStats();
     renderTimer();
     els.examMessage.textContent = over
-      ? `+${over}초 초과 · 틀리거나 느린 약재만 미완료로 표시`
-      : `${runtime.examElapsed}초 완료 · 틀린 약재는 미완료로 표시`;
+      ? `+${over}초 초과 · 기본은 완료, 틀리거나 느린 약재만 미완료`
+      : `${runtime.examElapsed}초 완료 · 기본은 완료, 틀린 약재만 미완료`;
   }
 
   function clearExamTimer() {
