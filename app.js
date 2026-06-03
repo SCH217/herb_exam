@@ -41,6 +41,7 @@
     timerText: $("#timerText"),
     startExamBtn: $("#startExamBtn"),
     revealExamBtn: $("#revealExamBtn"),
+    examModeButtons: $$("[data-exam-source]"),
     examGrid: $("#examGrid"),
     deckSearch: $("#deckSearch"),
     deckList: $("#deckList"),
@@ -58,6 +59,7 @@
     examElapsed: 0,
     examTimer: null,
     examRevealed: false,
+    examSourceMode: "weak",
     resetArmed: false,
     resetTimer: null,
   };
@@ -73,6 +75,7 @@
         totalElapsed: 0,
         lastElapsed: 0,
         repeatItems: {},
+        sourceMode: "weak",
       },
       savedAt: Date.now(),
     };
@@ -237,6 +240,24 @@
     if (mode === "deck") renderDeck();
   }
 
+  function setExamSourceMode(mode, options = {}) {
+    const validModes = new Set(["weak", "real", "exclude-known"]);
+    runtime.examSourceMode = validModes.has(mode) ? mode : "weak";
+    state.exam.sourceMode = runtime.examSourceMode;
+    els.examModeButtons.forEach((button) => {
+      const active = button.dataset.examSource === runtime.examSourceMode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if (!options.skipSave) saveState();
+  }
+
+  function examSourceLabel() {
+    if (runtime.examSourceMode === "real") return "실전혼합";
+    if (runtime.examSourceMode === "exclude-known") return "완료제외";
+    return "약점압축";
+  }
+
   function buildFlashQueue() {
     const incomplete = HERBS.filter((item) => itemState(item.id).status !== "known");
     runtime.flashQueue = shuffle(incomplete.length ? incomplete : HERBS);
@@ -308,17 +329,30 @@
     runtime.examElapsed = 0;
     runtime.examStartedAt = Date.now();
     runtime.examRevealed = false;
-    els.examMessage.textContent = "종이에 한자명을 쓰고, 끝나면 정답보기를 누르세요.";
+    els.examMessage.textContent = `${examSourceLabel()} · 종이에 한자명을 쓰고, 끝나면 정답보기를 누르세요.`;
     renderExamGrid(false);
     renderTimer();
     runtime.examTimer = setInterval(tickExam, 250);
   }
 
+  function examModePool() {
+    if (runtime.examSourceMode === "real") return HERBS;
+    const pool = HERBS.filter((item) => {
+      const s = itemState(item.id);
+      const repeated = Boolean(state.exam.repeatItems[item.id]);
+      if (runtime.examSourceMode === "exclude-known") return s.status !== "known";
+      return s.status !== "known" || repeated;
+    });
+    return pool.length ? pool : HERBS;
+  }
+
   function pickExamItems() {
     const chosen = [];
     const used = new Set();
+    const primaryPool = examModePool();
     while (chosen.length < 4 && used.size < HERBS.length) {
-      const candidates = HERBS.filter((item) => !used.has(item.id));
+      const primaryCandidates = primaryPool.filter((item) => !used.has(item.id));
+      const candidates = primaryCandidates.length ? primaryCandidates : HERBS.filter((item) => !used.has(item.id));
       const item = weightedPick(candidates);
       chosen.push(item);
       used.add(item.id);
@@ -384,7 +418,6 @@
 
     runtime.examItems.forEach((item) => {
       markSeen(item);
-      if (over) state.exam.repeatItems[item.id] = true;
     });
 
     saveState("저장됨");
@@ -392,7 +425,7 @@
     renderStats();
     renderTimer();
     els.examMessage.textContent = over
-      ? `+${over}초 초과 · 이 세트는 반복 약재로 저장됨`
+      ? `+${over}초 초과 · 틀리거나 느린 약재만 미완료로 표시`
       : `${runtime.examElapsed}초 완료 · 틀린 약재는 미완료로 표시`;
   }
 
@@ -535,6 +568,9 @@
 
   function bindEvents() {
     els.tabs.forEach((tab) => tab.addEventListener("click", () => setMode(tab.dataset.mode)));
+    els.examModeButtons.forEach((button) =>
+      button.addEventListener("click", () => setExamSourceMode(button.dataset.examSource)),
+    );
     els.answerCard.addEventListener("click", revealFlash);
     els.flashImage.addEventListener("click", revealFlash);
     els.prevFlashBtn.addEventListener("click", () => moveFlash(-1));
@@ -566,6 +602,7 @@
       return;
     }
     bindEvents();
+    setExamSourceMode(state.exam.sourceMode || "weak", { skipSave: true });
     renderStats();
     renderTimer();
     buildFlashQueue();

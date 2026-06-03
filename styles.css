@@ -248,6 +248,50 @@ h1 {
   margin-bottom: 14px;
 }
 
+
+.exam-source-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.exam-source-button {
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.exam-source-button strong,
+.exam-source-button span {
+  display: block;
+}
+
+.exam-source-button strong {
+  font-size: 14px;
+}
+
+.exam-source-button span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.exam-source-button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.exam-source-button.active span {
+  color: #4b4b52;
+}
+
 .exam-toolbar {
   display: flex;
   align-items: center;
@@ -437,6 +481,10 @@ h1 {
   .summary-grid,
   .exam-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .exam-source-picker {
+    grid-template-columns: 1fr;
   }
 
   .image-frame {
