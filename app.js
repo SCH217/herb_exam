@@ -159,11 +159,11 @@
     return state.items[id];
   }
 
-  function markSeen(item) {
+  function markSeen(item, defaultStatus = "unknown") {
     const s = itemState(item.id);
     if (!s.seen) {
       s.seen = true;
-      s.status = s.status === "new" ? "unknown" : s.status;
+      s.status = s.status === "new" ? defaultStatus : s.status;
     }
     s.seenCount += 1;
     s.lastSeen = Date.now();
@@ -286,7 +286,7 @@
   function revealFlash() {
     if (!runtime.flashItem || runtime.flashRevealed) return;
     runtime.flashRevealed = true;
-    markSeen(runtime.flashItem);
+    markSeen(runtime.flashItem, "known");
     els.answerCard.classList.add("revealed");
     els.answerText.textContent = runtime.flashItem.name;
     els.answerSubtext.textContent = runtime.flashItem.tip;
@@ -301,6 +301,8 @@
     s.status = status;
     s.seen = true;
     s.lastSeen = Date.now();
+    if (status === "unknown") state.exam.repeatItems[item.id] = true;
+    if (status === "known") delete state.exam.repeatItems[item.id];
     saveState("저장됨");
     renderStats();
 
@@ -417,7 +419,7 @@
     else state.exam.onTimeSets += 1;
 
     runtime.examItems.forEach((item) => {
-      markSeen(item);
+      markSeen(item, "known");
       const s = itemState(item.id);
       s.seen = true;
       s.status = "known";

@@ -1,10 +1,10 @@
-const CACHE_NAME = "boncho-yakje-v4";
+const CACHE_NAME = "boncho-yakje-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./data.js",
+  "./styles.css?v=20260603-2",
+  "./app.js?v=20260603-2",
+  "./data.js?v=20260603-2",
   "./manifest.webmanifest",
   "./icons/icon.svg"
 ];
@@ -25,6 +25,20 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  const isFreshAsset = ["/", "/index.html", "/app.js", "/data.js", "/styles.css"].includes(url.pathname);
+  if (isFreshAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
